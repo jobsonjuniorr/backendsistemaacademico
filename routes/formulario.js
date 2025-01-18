@@ -9,7 +9,7 @@ const upload = multer({ dest: 'uploads/' });
 // Rota para salvar as informações e as imagens
 router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'secondImage' }, {name : 'noticiaImage'}]), async (req, res) => {
     const { title, description, secondText, tilleNoticia, descriptionNoticia } = req.body;
-    console.log(tilleNoticia)
+ 
   
     if (!title || !description || !secondText || !tilleNoticia || !descriptionNoticia) {
         return res.status(400).json({ message: 'Os campos title, description e secondText são obrigatórios.' });
