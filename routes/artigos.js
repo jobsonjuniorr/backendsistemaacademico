@@ -1,12 +1,14 @@
 const express = require('express');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 const db = require('../db/db');
 
-// Configuração do multer para salvar arquivos na memória
+
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Rota para adicionar um artigo
+
 router.post('/', upload.single('pdfFile'), async (req, res) => {
     const { title, authors, summary } = req.body;
 
@@ -17,14 +19,14 @@ router.post('/', upload.single('pdfFile'), async (req, res) => {
     }
 
     try {
-        // Inserção dos dados no banco de dados
+    
         const [result] = await db.query(
             `INSERT INTO artigos (titulo, autores, resumo, arquivo_pdf_path) VALUES (?, ?, ?, ?)`,
             [
                 title,
                 authors,
                 summary,
-                req.file.buffer, // Conteúdo do arquivo armazenado como LONGBLOB
+                req.file.buffer, 
             ]
         );
 
@@ -38,7 +40,31 @@ router.post('/', upload.single('pdfFile'), async (req, res) => {
     }
 });
 
-// Rota para listar artigos
+router.get('/:id/pdf', async (req, res) => {
+    const artigoId = req.params.id;
+    try {
+        
+        const [rows] = await db.query('SELECT * FROM artigos WHERE id = ?', [artigoId]);
+        
+     
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Artigo não encontrado' });
+        }
+        
+        const artigo = rows[0];
+     
+        res.setHeader('Content-Type', 'application/pdf');
+        
+        
+        res.send(artigo.arquivo_pdf_path); 
+    } catch (error) {
+        console.error('Erro ao recuperar o PDF:', error);
+        res.status(500).json({ message: 'Erro ao recuperar o PDF.' });
+    }
+});
+
+
+
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM artigos');
@@ -48,5 +74,4 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 });
-
 module.exports = router;
