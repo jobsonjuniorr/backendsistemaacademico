@@ -7,24 +7,27 @@ const db = require('../db/db');
 const upload = multer({ dest: 'uploads/' });
 
 // Rota para salvar as informações e as imagens
-router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'secondImage' }]), async (req, res) => {
-    const { title, description, secondText } = req.body;
-
+router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'secondImage' }, {name : 'noticiaImage'}]), async (req, res) => {
+    const { title, description, secondText, tilleNoticia, descriptionNoticia } = req.body;
+    console.log(tilleNoticia)
   
-    if (!title || !description || !secondText) {
+    if (!title || !description || !secondText || !tilleNoticia || !descriptionNoticia) {
         return res.status(400).json({ message: 'Os campos title, description e secondText são obrigatórios.' });
     }
 
     try {
         const [result] = await db.query(
-            `INSERT INTO conteudo (title, description, second_text, image_path, logo_path, second_image_path) VALUES (?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO conteudo (title, description, second_text, title_noticia, description_noticia, image_path, logo_path, second_image_path, noticia_image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`,
             [
                 title,
                 description,
                 secondText,
+                tilleNoticia,
+                descriptionNoticia,
                 req.files['image'] ? req.files['image'][0].path : null,
                 req.files['logo'] ? req.files['logo'][0].path : null,
                 req.files['secondImage'] ? req.files['secondImage'][0].path : null,
+                req.files['noticiaImage'] ? req.files['noticiaImage'][0].path : null
             ]
         );
 
@@ -38,7 +41,7 @@ router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'se
     }
 });
 
-// Rota para devolver as informações da tabela 'conteudo'
+
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM conteudo');
