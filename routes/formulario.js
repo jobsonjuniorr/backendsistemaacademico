@@ -7,27 +7,26 @@ const db = require('../db/db');
 const upload = multer({ dest: 'uploads/' });
 
 
-router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'secondImage' }, {name : 'noticiaImage'}]), async (req, res) => {
-    const { title, description, secondText, tilleNoticia, descriptionNoticia } = req.body;
+router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'secondImage' }]), async (req, res) => {
+    const { title, description, secondText} = req.body;
  
   
-    if (!title || !description || !secondText || !tilleNoticia || !descriptionNoticia) {
+    if (!title || !description || !secondText) {
         return res.status(400).json({ message: 'Os campos title, description e secondText são obrigatórios.' });
     }
 
     try {
         const [result] = await db.query(
-            `INSERT INTO conteudo (title, description, second_text, title_noticia, description_noticia, image_path, logo_path, second_image_path, noticia_image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`,
+            `INSERT INTO conteudo (title, description, second_text, image_path, logo_path, second_image_path ) VALUES (?, ?, ?, ?, ?, ?)`,
             [
                 title,
                 description,
                 secondText,
-                tilleNoticia,
-                descriptionNoticia,
+           
                 req.files['image'] ? req.files['image'][0].path : null,
                 req.files['logo'] ? req.files['logo'][0].path : null,
                 req.files['secondImage'] ? req.files['secondImage'][0].path : null,
-                req.files['noticiaImage'] ? req.files['noticiaImage'][0].path : null
+             
             ]
         );
 
