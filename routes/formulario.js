@@ -3,10 +3,10 @@ const multer = require('multer');
 const router = express.Router();
 const db = require('../db/db');
 
-// Configuração do multer para salvar os arquivos em uma pasta "uploads"
+
 const upload = multer({ dest: 'uploads/' });
 
-// Rota para salvar as informações e as imagens
+
 router.post('/', upload.fields([{ name: 'image' }, { name: 'logo' }, { name: 'secondImage' }, {name : 'noticiaImage'}]), async (req, res) => {
     const { title, description, secondText, tilleNoticia, descriptionNoticia } = req.body;
  
